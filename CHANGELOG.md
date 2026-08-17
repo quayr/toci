@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/quayr/toci/compare/v1.0.3...v1.0.4) (2026-08-17)
+
+
+### Bug Fixes
+
+* set proper license ([68fe2b6](https://github.com/quayr/toci/commit/68fe2b668721f3012384b2c42b1e766a5249ce3b))
+
 ## [1.0.3](https://github.com/quayr/toci/compare/v1.0.2...v1.0.3) (2026-08-17)
 
 
