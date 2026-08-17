@@ -64,7 +64,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
-      # Preserve version history: find the last run that deployed docs
+      # Preserve version history: find the last run that built docs
       - name: Find last successful docs run
         id: last-run
         uses: actions/github-script@v7
@@ -84,7 +84,7 @@ jobs:
                 repo: context.repo.repo,
                 run_id: run.id,
               });
-              if (arts.artifacts.some((a) => a.name === 'github-pages')) {
+              if (arts.artifacts.some((a) => a.name === 'docs-history')) {
                 return run.id;
               }
             }
@@ -94,7 +94,7 @@ jobs:
         if: steps.last-run.outputs.result != ''
         uses: actions/download-artifact@v4
         with:
-          name: github-pages
+          name: docs-history
           path: previous
           run-id: ${{ steps.last-run.outputs.result }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -114,6 +114,16 @@ jobs:
 
       - name: Build docs
         run: pnpm run docs:build
+
+      # Upload the versioned docs as a regular artifact so the NEXT release
+      # can download it to preserve version history. (The github-pages artifact
+      # is consumed by deploy-pages and cannot be downloaded.)
+      - name: Upload docs history
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-history
+          path: docs/api
+          retention-days: 90
 
       # The plugin creates absolute symlinks (stable/dev/minor) which break on
       # GitHub Pages — dereference them into real directories before upload
