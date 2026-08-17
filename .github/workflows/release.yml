@@ -69,6 +69,7 @@ jobs:
         id: last-run
         uses: actions/github-script@v7
         with:
+          result-encoding: string
           script: |
             const { data: runs } = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
