@@ -1,6 +1,6 @@
 {
   "name": "@quayr/toci",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TypeScript OCI primitives and client modeled after oras-go",
   "license": "ISC",
   "repository": {
