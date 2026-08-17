@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/quayr/toci/compare/v1.0.1...v1.0.2) (2026-08-17)
+
+
+### Bug Fixes
+
+* preserve docs history via dedicated artifact ([52963eb](https://github.com/quayr/toci/commit/52963eb1ea28ef6cc04bda2aeec9982e4fc2e3cc))
+
 ## [1.0.1](https://github.com/quayr/toci/compare/v1.0.0...v1.0.1) (2026-08-17)
 
 
