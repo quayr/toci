@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/quayr/toci/compare/v1.0.2...v1.0.3) (2026-08-17)
+
+
+### Bug Fixes
+
+* use string result encoding for docs history lookup ([dcb68d7](https://github.com/quayr/toci/commit/dcb68d7365a713001f131a249070c40019383ad2))
+
 ## [1.0.2](https://github.com/quayr/toci/compare/v1.0.1...v1.0.2) (2026-08-17)
 
 
