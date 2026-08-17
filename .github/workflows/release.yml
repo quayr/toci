@@ -77,7 +77,7 @@ jobs:
               status: 'success',
               per_page: 30,
             });
-            for (const run of runs.data.workflow_runs) {
+            for (const run of runs.workflow_runs) {
               if (run.id === context.runId) continue;
               const { data: arts } = await github.rest.actions.listWorkflowRunArtifacts({
                 owner: context.repo.owner,
