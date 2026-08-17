@@ -1,0 +1,41 @@
+{
+  "name": "@quayr/toci",
+  "version": "0.1.0",
+  "description": "TypeScript OCI primitives and client modeled after oras-go",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quayr/toci.git"
+  },
+  "type": "commonjs",
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "pretest": "npm run typecheck",
+    "test": "tsx --test 'src/**/__tests__/**/*.test.ts'",
+    "prepublishOnly": "npm run typecheck && npm run build",
+    "docs:build": "typedoc --options typedoc.json"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@r74tech/typedoc-plugin-monorepo-versions": "^1.0.2",
+    "@types/node": "^26.1.2",
+    "tsx": "^4.23.1",
+    "typedoc": "0.28.20",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,133 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: node
+
+  publish-github-packages:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm publish --no-git-checks --registry https://npm.pkg.github.com
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  docs:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Preserve version history: find the last run that deployed docs
+      - name: Find last successful docs run
+        id: last-run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: runs } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release.yml',
+              status: 'success',
+              per_page: 30,
+            });
+            for (const run of runs.data.workflow_runs) {
+              if (run.id === context.runId) continue;
+              const { data: arts } = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+              });
+              if (arts.artifacts.some((a) => a.name === 'github-pages')) {
+                return run.id;
+              }
+            }
+            return '';
+
+      - name: Download previous docs
+        if: steps.last-run.outputs.result != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: previous
+          run-id: ${{ steps.last-run.outputs.result }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Restore old version folders + metadata so the plugin knows the full history
+      - name: Restore previous docs
+        run: |
+          mkdir -p docs/api
+          if [ -d previous ]; then
+            cp -r previous/. docs/api/
+            # Remove alias dirs/symlinks so the plugin can recreate them
+            rm -rf docs/api/stable docs/api/dev
+            rm -f docs/api/index.html docs/api/versions.js
+            find docs/api -maxdepth 1 -type d -regextype posix-extended \
+              -regex '.*/v[0-9]+\.[0-9]+$' -exec rm -rf {} +
+          fi
+
+      - name: Build docs
+        run: pnpm run docs:build
+
+      # The plugin creates absolute symlinks (stable/dev/minor) which break on
+      # GitHub Pages — dereference them into real directories before upload
+      - name: Dereference version aliases for Pages
+        run: cp -rL docs/api deploy
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: deploy
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
