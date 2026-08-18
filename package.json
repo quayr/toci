@@ -31,6 +31,10 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "@r74tech/typedoc-plugin-monorepo-versions": "^1.0.2",
     "@types/node": "^26.1.2",
