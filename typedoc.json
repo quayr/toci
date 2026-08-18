@@ -1,0 +1,20 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "plugin": [
+    "@r74tech/typedoc-plugin-monorepo-versions"
+  ],
+  "entryPoints": [
+    "src/index.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "tsconfig": "tsconfig.json",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "exclude": [
+    "src/**/__tests__/**"
+  ],
+  "readme": "none"
+}
